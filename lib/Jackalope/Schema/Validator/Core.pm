@@ -255,7 +255,15 @@ sub _check_properties {
 
         my $schema = $props->{ $k };
 
-        return { error => "property '$k' didn't exist" } if not exists $data->{ $k };
+        if($schema->{optional}) {
+            next if not exists $data->{ $k };
+        } else {
+            if($schema->{default}) {
+                $data->{ $k } = $schema->{default} if not exists $data->{ $k };
+            } else {
+                return { error => "property '$k' didn't exist" } if not exists $data->{ $k };
+            }
+        }
 
         return {
             error => "could not find validator for property '$k' because it has no type"
